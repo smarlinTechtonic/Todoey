@@ -9,7 +9,8 @@
 import UIKit
 import RealmSwift
 
-class CategoryTableViewController: UITableViewController {
+// Inherits from SwipeTableViewCOntroller
+class CategoryTableViewController: SwipeTableViewController {
     
     let realm = try! Realm()
     var categories: Results<CategoryList>?
@@ -17,7 +18,6 @@ class CategoryTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         loadCategories()
-
     }
 
     // MARK: - Table view data source
@@ -29,13 +29,13 @@ class CategoryTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         cell.textLabel?.text = categories?[indexPath.row].name ?? "There are no categories"
         return cell
         
     }
     
-    //MARK: Add more categories
+    //MARK: - Add more categories
     @IBAction func addCategoryButtonPressed(_ sender: UIBarButtonItem) {
         
         var textField = UITextField()
@@ -74,6 +74,19 @@ class CategoryTableViewController: UITableViewController {
         
     }
     
+    // MARK: - Override deleteModel of superclass
+    override func deleteModel(at indexPath: IndexPath) {
+        if let categoryToDelete = categories?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(categoryToDelete)
+                }
+            } catch {
+                print("There was an error \(error)")
+            }
+        }
+    }
+    
     // MARK: - Table view data delegate methods
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 
@@ -89,4 +102,5 @@ class CategoryTableViewController: UITableViewController {
         }
     }
     
+    //MARK: Delete Data Method
 }

@@ -1,7 +1,7 @@
 import UIKit
 import RealmSwift
 
-class ToDoListViewController: UITableViewController {
+class ToDoListViewController: SwipeTableViewController {
     
     let realm = try! Realm()
     var items: Results<Item>?
@@ -20,7 +20,8 @@ class ToDoListViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
+        // Initialize a tableview cell from super class
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         if let item = items?[indexPath.row] {
             cell.textLabel!.text = item.title
             cell.accessoryType = item.done == true ? .checkmark : .none
@@ -35,7 +36,6 @@ class ToDoListViewController: UITableViewController {
             do {
                 try realm.write {
                     item.done = !item.done
-//                    realm.delete(item)
                 }
             } catch {
                 print("There was an error \(error)")
@@ -45,6 +45,7 @@ class ToDoListViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
     }
 
+    //MARK: - Add more items
     @IBAction func AddToDo(_ sender: Any) {
         var textField = UITextField()
         let alert = UIAlertController(title: "Add To Do Item", message: "", preferredStyle: .alert)
@@ -75,6 +76,18 @@ class ToDoListViewController: UITableViewController {
     
         items = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
         tableView.reloadData()
+    }
+    
+    override func deleteModel(at indexPath: IndexPath) {
+        if let itemToDelete = items?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(itemToDelete)
+                }
+            } catch {
+                print("There was an error deleting item \(error)")
+            }
+        }
     }
     
 }
