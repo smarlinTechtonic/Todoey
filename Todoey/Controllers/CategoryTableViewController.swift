@@ -1,13 +1,6 @@
-//
-//  CategoryTableViewController.swift
-//  Todoey
-//
-//  Created by Sonali Marlin on 10/29/19.
-//  Copyright © 2019 Sonali Marlin. All rights reserved.
-//
-
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
 // Inherits from SwipeTableViewCOntroller
 class CategoryTableViewController: SwipeTableViewController {
@@ -18,6 +11,7 @@ class CategoryTableViewController: SwipeTableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         loadCategories()
+        tableView.separatorStyle = .none
     }
 
     // MARK: - Table view data source
@@ -28,9 +22,11 @@ class CategoryTableViewController: SwipeTableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
+       
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
         cell.textLabel?.text = categories?[indexPath.row].name ?? "There are no categories"
+        cell.backgroundColor = UIColor(hexString: categories?[indexPath.row].color ?? "#fff")
+        cell.textLabel?.textColor = ContrastColorOf(cell.backgroundColor!, returnFlat: true)
         return cell
         
     }
@@ -42,7 +38,9 @@ class CategoryTableViewController: SwipeTableViewController {
         let alert = UIAlertController(title: "Add Category", message: "Add a new to-do Category here", preferredStyle: .alert)
         let alertAction = UIAlertAction(title: "Add Category", style: .default) { (action) in
             let newCategory = CategoryList()
+            let color = UIColor.randomFlat().hexValue()
             newCategory.name = textField.text!
+            newCategory.color = color
             self.saveCategories(category: newCategory)
         }
         alert.addAction(alertAction)
